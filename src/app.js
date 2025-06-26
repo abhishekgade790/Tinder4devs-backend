@@ -1,20 +1,27 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const connectDB = require('./config/database');
+const cookieParser = require('cookie-parser');
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');  
+
+const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.use('/', authRouter);
+app.use('/', profileRouter); 
+app.use('/', requestRouter);
 
 
-app.use("/hello", (req, res) => {
-    res.send("hello from server....!")
-})
-app.use("/test", (req, res) => {
-    res.send("test from server....!")
-})
-app.use("/abhi", (req, res) => {
-    res.send("abhi is here at server to serve requests from user....!")
-})
-app.use((req, res) => {
-    res.send("Wellcome to the server....!")
-})
+connectDB().then((result) => {
+    console.log("database connected........")
+    app.listen(6057, () => {
+        console.log("server is listening on port 6057.....!")
+    })
+}).catch((err) => {
+    console.log("error to connect db....");
+});
 
-app.listen(6057, () => {
-    console.log("server is listening on port 6057.....!")
-})
+
