@@ -50,11 +50,25 @@ const userSchema = new mongoose.Schema({
         type: Date,
         required: true,
         validate(value) {
-            if (value && isNaN(Date.parse(value))) {
+            if (!value || isNaN(Date.parse(value))) {
                 throw new Error("Invalid birth date");
+            }
+
+            const today = new Date();
+            const birthDate = new Date(value);
+            const ageDiff = today.getFullYear() - birthDate.getFullYear();
+            const hasBirthdayPassedThisYear =
+                today.getMonth() > birthDate.getMonth() ||
+                (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+            const age = hasBirthdayPassedThisYear ? ageDiff : ageDiff - 1;
+
+            if (age < 18) {
+                throw new Error("You must be at least 18 years old.");
             }
         }
     }
+
     ,
     age: {
         type: Number,
@@ -82,12 +96,7 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl: {
         type: String,
-        default: "https://example.com/photos/default.jpg",
-        validate(value) {
-            if (!validator.isURL(value)) {
-                throw new Error("Invalid photo URL");
-            }
-        }
+        default: "https://tse3.mm.bing.net/th/id/OIP.c2pNCKarFMQqCgZG7L5YNwHaHa?pid=Api&P=0&h=180",
     },
     about: {
         type: String,
@@ -97,6 +106,8 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+userSchema.index({ firstName: 1, lastName: 1 })
 
 userSchema.pre('save', function (next) {
     if (this.birthDate) {

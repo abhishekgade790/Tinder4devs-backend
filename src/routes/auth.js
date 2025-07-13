@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 //sign-up 
 authRouter.post("/signup", async (req, res) => {
-    const { firstName, lastName, email, password,birthDate, age, gender,skills, photoUrl, about } = req?.body
+    const { firstName, lastName, email, password, birthDate, age, gender, skills, photoUrl, about } = req?.body
     //validation -> schema level validation
 
     //Password encryption
@@ -28,7 +28,7 @@ authRouter.post("/signup", async (req, res) => {
         await newUser.save()
         res.send("User added successfully....");
     } catch (err) {
-        res.send("ERROR : " + err);
+        res.send(err);
     }
 })
 
@@ -38,19 +38,22 @@ authRouter.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ email: email });
         if (!user) {
-            res.status(404).send("Invalid credentials");
+            res.status(401).send("Invalid credentials");
         } else {
-            const isPasswordValid = user.validatePassword(password);
+            const isPasswordValid = await user.validatePassword(password);
             const token = await user.getJwtToken();
             if (isPasswordValid) {
-                res.cookie("token", token, { expires: new Date(Date.now() + 7 * 60 * 60 * 24) });
-                res.send("Login successful...");
+                res.cookie("token", token, {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    httpOnly: true,
+                });
+                res.send(user);
             } else {
-                res.send("Invalid credentials");
+                return res.status(401).send("Invalid credentials");
             }
         }
     } catch (err) {
-        res.status(404).send("ERROR : " + err);
+        return res.status(500).send("Something went wrong. Try again.");
     }
 })
 

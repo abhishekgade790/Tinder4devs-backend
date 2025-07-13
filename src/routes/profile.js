@@ -10,9 +10,9 @@ const User = require('../models/User');
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
     try {
         const user = req.user;
-        res.send(user);
+        res.json(user);
     } catch (err) {
-        res.status(400).send("ERROR : " + err);
+        res.status(400).send( err);
 
     }
 })
@@ -29,11 +29,14 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
         })
 
         await user.save().then(() => {
-            res.send("Profile updated successfully....");
+            res.json({
+                message: "Profile updated successfully....",
+                data: user
+            });
         });
 
     } catch (err) {
-        res.status(400).send("ERROR : " + err);
+        res.status(400).send( err);
     }
 });
 
@@ -58,7 +61,7 @@ profileRouter.patch("/profile/update-password", userAuth, async (req, res) => {
         })
 
     } catch (err) {
-        res.status(400).send("ERROR : " + err)
+        res.status(400).send( err)
     }
 })
 
@@ -76,7 +79,7 @@ profileRouter.patch("/profile/forgot-password", async (req, res) => {
             res.send("your password updated succesfully. Now you can login using your new password.");
         })
     } catch (err) {
-        res.status(400).send("ERROR : " + err);
+        res.status(400).send( err);
     }
 })
 
