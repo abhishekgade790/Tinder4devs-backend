@@ -16,7 +16,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
         }).populate("fromUserId", USER_SAFE_DATA)
 
         if (!connectionRequests || connectionRequests.length === 0) {
-            return res.status(400).json({
+            return res.json({
                 message: "No pending requests found."
             });
         }

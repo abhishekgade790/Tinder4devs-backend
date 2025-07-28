@@ -38,7 +38,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
         if (existConnectionRequest) {
             return res.status(400).json({
-                message: "Connection request already exists between these users."
+                message: "Connection request already exists."
             });
         }
 
@@ -47,7 +47,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
             existRecievedRequest.status = "accepted";
             await existRecievedRequest.save();
             return res.status(201).json({
-                message: `${toUser.firstName} has already sent you a connection request. It has been accepted.`,
+                message: `${toUser.firstName}'s connection request has been accepted.`,
                 data: existRecievedRequest
             });
         }

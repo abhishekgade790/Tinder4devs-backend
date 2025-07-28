@@ -2,12 +2,23 @@ const express = require('express');
 const authRouter = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 //sign-up 
 authRouter.post("/signup", async (req, res) => {
     const { firstName, lastName, email, password, birthDate, age, gender, skills, photoUrl, about } = req?.body
     //validation -> schema level validation
 
+    //email exist or not
+    const user = await User.findOne({ email: email });
+    if (user) {
+        return res.json({ message: "Email already exists." });
+    }
+    //password validation
+    if (!validator.isStrongPassword(password)) {
+        return res.json({ message: "Password must be strong: It must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character" });
+    }
+    
     //Password encryption
     const passwordHash = await bcrypt.hash(password, 10)
 
@@ -26,9 +37,9 @@ authRouter.post("/signup", async (req, res) => {
     })
     try {
         await newUser.save()
-        res.send("User added successfully....");
+        res.json({ message: "success", data: newUser });
     } catch (err) {
-        res.send(err);
+        res.json({ message: "failed", err: err });
     }
 })
 

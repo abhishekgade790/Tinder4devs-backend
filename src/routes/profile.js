@@ -4,6 +4,7 @@ const profileRouter = express.Router();
 const { isEditProfileValid } = require('../utils/validation')
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const validator = require('validator');
 
 
 //profile/view
@@ -12,7 +13,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
         const user = req.user;
         res.json(user);
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
 
     }
 })
@@ -36,7 +37,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
         });
 
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
     }
 });
 
@@ -45,25 +46,31 @@ profileRouter.patch("/profile/update-password", userAuth, async (req, res) => {
     try {
         const user = req.user;
         const passwordHash = user.password;
-        const { confirmPassword, newPassword } = req?.body;
+        const { oldPassword, newPassword } = req?.body;
 
-        const isPasswordMatch = bcrypt.compare(confirmPassword, passwordHash);
+        const isPasswordMatch = await bcrypt.compare(oldPassword, passwordHash);
 
         if (!isPasswordMatch) {
-            throw new Error('password does not match.')
+            throw new Error('Old password does not match.');
+        }
+
+        if (!validator.isStrongPassword(newPassword)) {
+            throw new Error("Password must be strong: It must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character");
         }
 
         const newPasswordHash = await bcrypt.hash(newPassword, 10);
         user.password = newPasswordHash;
 
-        await user.save().then(() => {
-            res.send("password updated succesfully..!")
-        })
+        await user.save();
+
+        res.json({ message: "Password updated successfully!" });
 
     } catch (err) {
-        res.status(400).send( err)
+        res.status(400).send({ message: err.message || "Something went wrong" });
     }
-})
+});
+
+
 
 //forgot password
 profileRouter.patch("/profile/forgot-password", async (req, res) => {
@@ -71,15 +78,15 @@ profileRouter.patch("/profile/forgot-password", async (req, res) => {
         const { email, birthDate, newPassword } = req?.body;
         const user = await User.findOne({ email: email, birthDate: birthDate });
         if (!user) {
-            throw new Error("User not found with this email and birthdate");
+            res.json({ message: "User not found with this email and birthdate" });
         }
         const newPasswordHash = await bcrypt.hash(newPassword, 10);
         user.password = newPasswordHash;
         await user.save().then(() => {
-            res.send("your password updated succesfully. Now you can login using your new password.");
+            res.json({ message: "your password updated succesfully. Now you can login using your new password." });
         })
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
     }
 })
 
