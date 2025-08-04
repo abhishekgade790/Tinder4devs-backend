@@ -3,7 +3,7 @@ const userAuth = require('../middlewares/auth');
 const profileRouter = express.Router();
 const { isEditProfileValid } = require('../utils/validation')
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+('../models/User');
 const validator = require('validator');
 
 

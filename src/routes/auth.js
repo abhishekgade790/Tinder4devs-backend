@@ -1,6 +1,6 @@
 const express = require('express');
 const authRouter = express.Router();
-const User = require('../models/User');
+const User = require('../models/../models/User');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 
@@ -18,7 +18,7 @@ authRouter.post("/signup", async (req, res) => {
     if (!validator.isStrongPassword(password)) {
         return res.json({ message: "Password must be strong: It must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character" });
     }
-    
+
     //Password encryption
     const passwordHash = await bcrypt.hash(password, 10)
 
