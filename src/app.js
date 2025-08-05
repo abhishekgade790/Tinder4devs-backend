@@ -15,6 +15,8 @@ app.use(cors({
 }))
 app.use(express.json());
 app.use(cookieParser());
+app.set("trust proxy", 1); // required if behind proxy like Render
+
 
 app.use('/', authRouter);
 app.use('/', profileRouter);

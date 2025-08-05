@@ -57,7 +57,10 @@ authRouter.post("/login", async (req, res) => {
                 res.cookie("token", token, {
                     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                     httpOnly: true,
+                    secure: true, // only send cookie over HTTPS
+                    sameSite: "None", // allow cross-site cookie
                 });
+
                 res.send(user);
             } else {
                 return res.status(401).send("Invalid credentials");
