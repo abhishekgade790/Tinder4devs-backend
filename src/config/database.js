@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-    await mongoose.connect('mongodb+srv://abhishekgade790:YGev59FnhmNXyymx@cluster45.8ctjyzx.mongodb.net/tinder4devs')
+    await mongoose.connect(process.env.DATABASE_STRING, {
+        useNewUrlParser: true
+    })
 }
 
 

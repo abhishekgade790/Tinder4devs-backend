@@ -10,7 +10,7 @@ const cors = require('cors')
 const app = express();
 
 app.use(cors({
-    origin: ["http://localhost:5173", "https://tinder4devs.vercel.app"],
+    origin: [process.env.TINDER_4_DEVS_FRONTEND, process.env.TINDER_4_DEVS_LOCALHOST],
     credentials: true
 }))
 app.use(express.json());
@@ -26,8 +26,8 @@ app.use('/', userRouter)
 
 connectDB().then((result) => {
     console.log("database connected........")
-    app.listen(6057, () => {
-        console.log("server is listening on port 6057.....!")
+    app.listen(process.env.PORT, () => {
+        console.log(`server is listening on port ${process.env.PORT}.....!`)
     })
 }).catch((err) => {
     console.log("error to connect db....");
