@@ -6,7 +6,10 @@ const profileRouter = require('./routes/profile');
 const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 const cors = require('cors')
+
+
 require('dotenv').config();
+require('./utils/cronjob'); // Import the cron job to ensure it runs
 
 
 const app = express();
