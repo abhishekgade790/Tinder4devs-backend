@@ -2,6 +2,7 @@ const express = require('express');
 const userAuth = require('../middlewares/auth');
 const ConnectionRequest = require('../models/connectionRequest');
 const User = require('../models/user');
+const { sendMail } = require('../utils/emailService');
 
 const requestRouter = express.Router();
 
@@ -59,6 +60,32 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
             status: status
         });
         const data = await request.save();
+
+        //send email notification if status is 'interested'
+        if (status === "interested") {
+            const to = toUser.email;
+            const subject = "You Have a New Connection Request on Tinder4Devs";
+            const text = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2>Hello ${toUser.firstName},</h2>
+            <p><strong>${req.user.firstName}</strong> has shown interest in connecting with you on <b>Tinder4Devs</b>.</p>
+            <p style="margin: 16px 0;">
+                Click below to view the request and respond:
+            </p>
+            <a href="https://tinder4devs.vercel.app" 
+               style="background-color: #9ecbff; color: #202020; padding: 10px 18px; text-decoration: none; border-radius: 6px;">
+                View Connection Request
+            </a>
+            <p style="margin-top: 20px; font-size: 14px; color: #555;">
+                Thank you for being part of the Tinder4Devs community.<br>
+                – The Tinder4Devs Team
+            </p>
+        </div>
+    `;
+            await sendMail(to, subject, text);
+        }
+
+
         res.json({
             message: status === "interested" ? `sended connection request to ${toUser.firstName}` : `you ignored ${toUser.firstName}.`,
             data
@@ -102,7 +129,7 @@ requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, r
             data: updatedData
         });
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
     }
 })
 module.exports = requestRouter;

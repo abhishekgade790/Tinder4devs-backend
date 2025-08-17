@@ -3,6 +3,7 @@ const authRouter = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+const { sendMail } = require('../utils/emailService');
 
 //sign-up 
 authRouter.post("/signup", async (req, res) => {
@@ -37,6 +38,7 @@ authRouter.post("/signup", async (req, res) => {
     })
     try {
         await newUser.save()
+        await sendMail(newUser.email, "Welcome to Tinder4Devs", `<h1>Hello ${newUser.firstName},</h1><p>Welcome to Tinder4Devs! We are excited to have you on board.</p>`);
         res.json({ message: "success", data: newUser });
     } catch (err) {
         res.json({ message: "failed", err: err });

@@ -6,6 +6,8 @@ const profileRouter = require('./routes/profile');
 const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 const cors = require('cors')
+require('dotenv').config();
+
 
 const app = express();
 
@@ -30,7 +32,7 @@ connectDB().then((result) => {
         console.log(`server is listening on port ${process.env.PORT}.....!`)
     })
 }).catch((err) => {
-    console.log("error to connect db....");
+    console.log("error to connect db....", err);
 });
 
 

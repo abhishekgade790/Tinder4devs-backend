@@ -3,6 +3,8 @@ const userAuth = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require('../models/user');
 const userRouter = express.Router();
+const { sendMail } = require('../utils/emailService')
+
 
 const USER_SAFE_DATA = "firstName lastName age gender skills photoUrl about";
 
@@ -59,7 +61,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         })
 
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
     }
 })
 
@@ -100,8 +102,49 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
 
 
     } catch (err) {
-        res.status(400).send( err);
+        res.status(400).send(err);
+    }
+})
+
+userRouter.get("/user/email", userAuth, async (req, res) => {
+    try {
+        async function testEmail() {
+            try {
+                const to = "45abcreations@gmail.com";
+                const subject = "You Have a New Connection Request on Tinder4Devs";
+                const text = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2>Hello dear,</h2>
+            <p><strong>abhi</strong> has shown interest in connecting with you on <b>Tinder4Devs</b>.</p>
+            <p style="margin: 16px 0;">
+                Click below to view the request and respond:
+            </p>
+            <p style="background-color: #a8efff; color: #fff; padding: 10px 18px; text-decoration: none; border-radius: 6px;">
+                View Connection Request<br/>
+                https://tinder4devs.vercel.app
+            </p>
+             
+            <p style="margin-top: 20px; font-size: 14px; color: #555;">
+                Thank you for being part of the Tinder4Devs community.<br>
+                – The Tinder4Devs Team
+            </p>
+        </div>
+    `;
+
+                const response = await sendMail(to, subject, text);
+
+                console.log(response)
+                res.send(response);
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        testEmail()
+    } catch (err) {
+        res.send(err);
     }
 })
 
 module.exports = userRouter;
+
