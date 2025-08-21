@@ -22,7 +22,7 @@ const durationMapping = { "1": 30, "3": 90, "6": 180 };
 /**
  * Create a new order
  */
-paymentRouter.post("/payment/create", userAuth, async (req, res) => {
+paymentRouter.post("/payment/create", async (req, res) => {
   const { membershipType, duration } = req.body;
   console.log("🧾 /payment/create ::", { membershipType, duration, user: req.user?._id });
 
@@ -83,7 +83,7 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
  * Verify (client callback) — called from Razorpay Checkout handler on success
  * Body expected: { razorpay_payment_id, razorpay_order_id, razorpay_signature }
  */
-paymentRouter.post("/payment/verify", userAuth, async (req, res) => {
+paymentRouter.post("/payment/verify", async (req, res) => {
   console.log("🧾 /payment/verify :: body =", req.body);
 
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body || {};
