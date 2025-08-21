@@ -96,7 +96,25 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "This is default about of user",
         trim: true
-    }
+    },
+    isPremium: {
+        type: Boolean,
+        default: false,
+    },
+    membershipType: {
+        type: String,
+        enum: ['devpro', 'codemaster'],
+        default: null,
+    },
+    membershipStartDate: {
+        type: Date,
+        default: null,
+    },
+    membershipEndDate: {
+        type: Date,
+        default: null,
+    },
+
 }, {
     timestamps: true
 });
@@ -129,5 +147,6 @@ userSchema.methods.validatePassword = async function (passwordInput) {
     const isPasswordValid = await bcrypt.compare(passwordInput, passwordHash);
     return isPasswordValid;
 }
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;

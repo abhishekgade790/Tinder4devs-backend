@@ -5,11 +5,13 @@ const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
 const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
-const cors = require('cors')
+const paymentRouter = require('./routes/payment');
+const cors = require('cors');
 
 
 require('dotenv').config();
-require('./utils/cronjob'); // Import the cron job to ensure it runs
+require('./utils/cronjobForSendEmail'); 
+require('./utils/cronjobForMebershipUpdate'); 
 
 
 const app = express();
@@ -27,6 +29,7 @@ app.use('/', authRouter);
 app.use('/', profileRouter);
 app.use('/', requestRouter);
 app.use('/', userRouter)
+app.use('/', paymentRouter)
 
 
 connectDB().then((result) => {
