@@ -20,13 +20,8 @@ app.use(cors({
     origin: [process.env.TINDER_4_DEVS_FRONTEND, process.env.TINDER_4_DEVS_LOCALHOST],
     credentials: true
 }))
-app.use((req, res, next) => {
-  if (req.originalUrl === "/payment/webhook") {
-    next(); // let raw middleware handle it
-  } else {
-    express.json()(req, res, next);
-  }
-});app.use(cookieParser());
+app.use(express.json());
+app.use(cookieParser());
 app.set("trust proxy", 1); // required if behind proxy like Render
 
 

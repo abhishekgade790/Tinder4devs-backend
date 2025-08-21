@@ -61,10 +61,10 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 
 
 
-paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }), async (req, res) => {
+paymentRouter.post("/payment/webhook", async (req, res) => {
     console.log("🔔 Webhook received");
 
-    const signature = req.headers["x-razorpay-signature"];
+    const signature = req.get("X-Razorpay-Signature");
 
     if (!signature) {
         console.error("❌ Razorpay signature missing in webhook headers!");
@@ -77,10 +77,12 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
 
     let isWebhookValid = false;
     try {
-        const rawBody = req.body.toString("utf8"); // req.body is a buffer here
-        console.log("📦 Raw body:", rawBody);
 
-        isWebhookValid = validateWebhookSignature(rawBody, signature, webhookSecret);
+        isWebhookValid = validateWebhookSignature(
+            JSON.stringify(req.body),
+            signature,
+            webhookSecret
+        );
         console.log("🔑 Signature valid:", isWebhookValid);
     } catch (error) {
         console.error("❌ Webhook verification failed:", error);
@@ -92,43 +94,40 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
         return res.status(400).send("Invalid signature");
     }
 
-    const event = req.body.event;
-    console.log("📌 Event Type:", event);
 
     try {
         const paymentDetails = req.body.payload?.payment?.entity;
         console.log("💰 Payment Details:", paymentDetails);
 
-        if (event === "payment.captured") {
-            const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
-            console.log("🔎 DB Payment found:", payment ? "Yes ✅" : "No ❌");
+        const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
+        console.log("🔎 DB Payment found:", payment ? "Yes ✅" : "No ❌");
 
-            if (!payment) {
-                return res.status(404).send("Payment not found");
-            }
-
-            // Update payment
-            payment.status = paymentDetails.status;
-            await payment.save();
-            console.log("💾 Payment updated in DB");
-
-            // Update user
-            const user = await User.findById(payment.userId);
-            console.log("👤 User found:", user ? user._id : "❌ No user");
-
-            if (user) {
-                const durationMapping = { "1": 30, "3": 90, "6": 180 };
-                const durationInDays = durationMapping[payment.duration];
-
-                user.membershipType = payment.membershipType;
-                user.membershipStartDate = new Date();
-                user.membershipEndDate = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-                user.isPremium = true;
-
-                await user.save();
-                console.log("✅ Membership updated successfully for user:", user._id);
-            }
+        if (!payment) {
+            return res.status(404).send("Payment not found");
         }
+
+        // Update payment
+        payment.status = paymentDetails.status;
+        await payment.save();
+        console.log("💾 Payment updated in DB");
+
+        // Update user
+        const user = await User.findById(payment.userId);
+        console.log("👤 User found:", user ? user._id : "❌ No user");
+
+        if (user) {
+            const durationMapping = { "1": 30, "3": 90, "6": 180 };
+            const durationInDays = durationMapping[payment.duration];
+
+            user.membershipType = payment.membershipType;
+            user.membershipStartDate = new Date();
+            user.membershipEndDate = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
+            user.isPremium = true;
+
+            await user.save();
+            console.log("✅ Membership updated successfully for user:", user._id);
+        }
+
     } catch (error) {
         console.error("❌ Error processing webhook:", error);
         return res.status(500).send("Error processing webhook");
