@@ -10,8 +10,8 @@ const cors = require('cors');
 
 
 require('dotenv').config();
-require('./utils/cronjobForSendEmail');
-require('./utils/cronjobForMebershipUpdate');
+require('./utils/cronjobForSendEmail'); 
+require('./utils/cronjobForMebershipUpdate'); 
 
 
 const app = express();
@@ -20,16 +20,16 @@ app.use(cors({
     origin: [process.env.TINDER_4_DEVS_FRONTEND, process.env.TINDER_4_DEVS_LOCALHOST],
     credentials: true
 }))
-app.set("trust proxy", 1); // required if behind proxy like Render
-app.use('/', paymentRouter)
 app.use(express.json());
 app.use(cookieParser());
+app.set("trust proxy", 1); // required if behind proxy like Render
 
 
 app.use('/', authRouter);
 app.use('/', profileRouter);
 app.use('/', requestRouter);
 app.use('/', userRouter)
+app.use('/', paymentRouter)
 
 
 connectDB().then((result) => {
