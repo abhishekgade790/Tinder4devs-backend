@@ -65,6 +65,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     console.log("🔔 Webhook received");
 
     const signature = req.get("X-Razorpay-Signature");
+    console.log( req.headers)
 
     if (!signature) {
         console.error("❌ Razorpay signature missing in webhook headers!");
