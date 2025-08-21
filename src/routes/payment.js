@@ -61,7 +61,7 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 
 //webhook
 paymentRouter.post("/payment/webhook", async (req, res) => {
-    const signature = req.get["x-razorpay-signature"];
+    const signature = req.get("x-razorpay-signature");
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
     const durationMapping = { "1": 30, "3": 90, "6": 180 };
