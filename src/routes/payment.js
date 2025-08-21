@@ -61,7 +61,7 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 
 //webhook
 //webhook
-paymentRouter.post("payment/webhook", async (req, res) => {
+paymentRouter.post("/payment/webhook", async (req, res) => {
   console.log('calling webhook');
   console.log(req)
   console.log("Received webhook request:", req.headers);
