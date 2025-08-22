@@ -83,39 +83,36 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 
     console.log("✅ Webhook signature is valid");
 
-    const event = req.body.event;
     const paymentDetails = req.body.payload.payment.entity;
 
     // Update DB when payment captured
-    if (event === "payment.captured") {
-      const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
-      if (!payment) {
-        console.error("❌ Payment not found for orderId:", paymentDetails.order_id);
-        return res.status(404).json({ message: "Payment not found" });
-      }
+    const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
+    if (!payment) {
+      console.log("❌ Payment not found for orderId:", paymentDetails.order_id);
+      return res.status(404).json({ message: "Payment not found" });
+    }
 
-      payment.status = paymentDetails.status;
-      await payment.save();
-      console.log("💰 Payment status updated:", payment);
+    payment.status = paymentDetails.status;
+    await payment.save();
+    console.log("💰 Payment status updated:", payment);
 
-      const durationMapping = { "1": 30, "3": 90, "6": 180 };
-      const user = await User.findById(payment.userId);
+    const durationMapping = { "1": 30, "3": 90, "6": 180 };
+    const user = await User.findById(payment.userId);
 
-      if (user) {
-        user.membershipType = payment.membershipType;
-        user.membershipStartDate = new Date();
-        user.membershipEndDate = new Date(
-          Date.now() + durationMapping[payment.duration] * 24 * 60 * 60 * 1000
-        );
-        user.isPremium = true;
-        await user.save();
-        console.log("👑 Membership updated for user:", user._id);
-      }
+    if (user) {
+      user.membershipType = payment.membershipType;
+      user.membershipStartDate = new Date();
+      user.membershipEndDate = new Date(
+        Date.now() + durationMapping[payment.duration] * 24 * 60 * 60 * 1000
+      );
+      user.isPremium = true;
+      await user.save();
+      console.log("👑 Membership updated for user:", user._id);
     }
 
     return res.status(200).json({ message: "Webhook processed successfully" });
   } catch (error) {
-    console.error("❌ Error processing webhook:", error);
+    console.log("❌ Error processing webhook:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
