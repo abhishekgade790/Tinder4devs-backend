@@ -117,5 +117,19 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
   }
 });
 
+//verify is Premium user
+paymentRouter.get("/premium/verify", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({ user });
+  } catch (error) {
+    console.error("Error checking premium status:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 
 module.exports = paymentRouter;
