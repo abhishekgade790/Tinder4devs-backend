@@ -7,6 +7,9 @@ const requestRouter = require('./routes/request');
 const userRouter = require('./routes/user');
 const paymentRouter = require('./routes/payment');
 const cors = require('cors');
+const http = require('http');
+const initializeSocket = require('./utils/socket');
+
 
 
 require('dotenv').config();
@@ -31,10 +34,13 @@ app.use('/', requestRouter);
 app.use('/', userRouter)
 app.use('/', paymentRouter)
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 
 connectDB().then((result) => {
     console.log("database connected........")
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
         console.log(`server is listening on port ${process.env.PORT}.....!`)
     })
 }).catch((err) => {

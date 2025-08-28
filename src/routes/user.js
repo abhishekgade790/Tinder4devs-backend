@@ -6,7 +6,7 @@ const userRouter = express.Router();
 const { sendMail } = require('../utils/emailService')
 
 
-const USER_SAFE_DATA = "firstName lastName age gender skills photoUrl about";
+const USER_SAFE_DATA = "firstName lastName age gender skills photoUrl about isPremium membershipType";
 
 //get all pending requests
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
